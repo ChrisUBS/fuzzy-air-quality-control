@@ -9,13 +9,17 @@ require_once('lib/FuzzyController.php');
 // Procesar la solicitud si es un POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Obtener valores de entrada
-    $temperatura = isset($_POST['temperatura']) ? floatval($_POST['temperatura']) : 25;
+    $co2 = isset($_POST['co2']) ? floatval($_POST['co2']) : 950;
+    $h2 = isset($_POST['h2']) ? floatval($_POST['h2']) : 520;
+    $co = isset($_POST['co']) ? floatval($_POST['co']) : 500;
+    $o2 = isset($_POST['o2']) ? floatval($_POST['o2']) : 6;
+    $tipoFuncion = isset($_POST['tipoFuncion']) ? $_POST['tipoFuncion'] : 'triangular';
     
     // Crear instancia del controlador difuso
-    $controller = new FuzzyController();
+    $controller = new FuzzyController($tipoFuncion);
     
     // Ejecutar el controlador y obtener resultados
-    $resultados = $controller->procesar($temperatura);
+    $resultados = $controller->procesar($co2, $h2, $co, $o2);
     
     // Verificar si es una solicitud AJAX
     if (isset($_POST['ajax']) && $_POST['ajax'] === 'true') {
@@ -39,14 +43,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <title>Control Difuso de Ventilador</title>
+    <title>Control Difuso de Calidad del Aire</title>
     <link rel="stylesheet" href="css/style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>Sistema de Control Difuso para Ventilador</h1>
+            <h1>Sistema de Control Difuso para Calidad del Aire</h1>
         </header>
 
         <main>
@@ -54,9 +58,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <h2>Parámetros de Entrada</h2>
                 <form id="fuzzyForm" onsubmit="return false;">
                     <div class="form-group">
-                        <label for="temperatura">Temperatura Ambiente (°C):</label>
-                        <input type="range" id="temperatura" name="temperatura" min="0" max="40" value="25" oninput="updateTemperaturaYCalcular(this.value)">
-                        <span id="temperaturaValue">25 °C</span>
+                        <label for="co2">CO2 (PPM):</label>
+                        <input type="range" id="co2" name="co2" min="900" max="1046" value="950" oninput="updateValorYCalcular('co2', this.value)">
+                        <span id="co2Value">950 PPM</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="h2">H2 (PPM):</label>
+                        <input type="range" id="h2" name="h2" min="500" max="540" value="520" oninput="updateValorYCalcular('h2', this.value)">
+                        <span id="h2Value">520 PPM</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="co">CO (PPM):</label>
+                        <input type="range" id="co" name="co" min="490" max="520" value="500" oninput="updateValorYCalcular('co', this.value)">
+                        <span id="coValue">500 PPM</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="o2">O2 (PPM):</label>
+                        <input type="range" id="o2" name="o2" min="4" max="8" value="6" oninput="updateValorYCalcular('o2', this.value)">
+                        <span id="o2Value">6 PPM</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="tipoFuncion">Tipo de Función de Membresía:</label>
+                        <select id="tipoFuncion" name="tipoFuncion" onchange="cambiarTipoFuncion(this.value)">
+                            <option value="triangular">Triangular</option>
+                            <option value="trapezoidal">Trapezoidal</option>
+                            <option value="gaussiano">Gaussiano</option>
+                        </select>
                     </div>
                 </form>
             </section>
@@ -65,17 +92,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <h2>Resultados del Control Difuso</h2>
                 <div class="results">
                     <div class="result-item">
-                        <h3>Velocidad del Ventilador:</h3>
+                        <h3>Índice de Calidad del Aire:</h3>
                         <div class="meter">
-                            <div id="velocidadBar" class="bar fan" style="width: 50%;">1500 RPM (50%)</div>
+                            <div id="calidadBar" class="bar air-quality" style="width: 50%;">250 (50%)</div>
                         </div>
                     </div>
-                    <div class="fan-display">
-                        <div class="fan-icon" id="fan-animation">
-                            <i class="fan-blade"></i>
-                            <i class="fan-blade"></i>
-                            <i class="fan-blade"></i>
-                            <i class="fan-blade"></i>
+                    <div class="quality-indicator">
+                        <div class="indicator-label" id="calidad-texto">Regular</div>
+                        <div class="indicator-icon" id="calidad-icono">
+                            <i class="quality-icon"></i>
                         </div>
                     </div>
                 </div>
@@ -85,12 +110,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <h2>Visualización Difusa</h2>
                 <div class="charts-container">
                     <div class="chart-wrapper">
-                        <h3>Membresía de Temperatura</h3>
-                        <canvas id="temperaturaChart"></canvas>
+                        <h3>Membresía de CO2</h3>
+                        <canvas id="co2Chart"></canvas>
                     </div>
                     <div class="chart-wrapper">
-                        <h3>Membresía de Velocidad</h3>
-                        <canvas id="velocidadChart"></canvas>
+                        <h3>Membresía de H2</h3>
+                        <canvas id="h2Chart"></canvas>
+                    </div>
+                    <div class="chart-wrapper">
+                        <h3>Membresía de CO</h3>
+                        <canvas id="coChart"></canvas>
+                    </div>
+                    <div class="chart-wrapper">
+                        <h3>Membresía de O2</h3>
+                        <canvas id="o2Chart"></canvas>
+                    </div>
+                    <div class="chart-wrapper">
+                        <h3>Membresía de Calidad del Aire</h3>
+                        <canvas id="calidadChart"></canvas>
                     </div>
                 </div>
             </section>
@@ -101,7 +138,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </main>
 
         <footer>
-            <p>Sistema de Control Difuso para Ventilador &copy; <?php echo date('Y'); ?></p>
+            <p>Sistema de Control Difuso para Calidad del Aire &copy; <?php echo date('Y'); ?></p>
         </footer>
     </div>
     

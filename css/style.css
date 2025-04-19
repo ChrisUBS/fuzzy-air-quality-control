@@ -55,6 +55,15 @@ input[type="range"] {
     margin-bottom: 5px;
 }
 
+select {
+    width: 100%;
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    font-size: 16px;
+    margin-bottom: 5px;
+}
+
 button {
     background-color: #0077b6;
     color: white;
@@ -99,8 +108,103 @@ button:hover {
     transition: width 0.5s ease-in-out;
 }
 
-.fan {
-    background-color: #0077b6;
+.air-quality {
+    background-color: #f1c40f; /* Color predeterminado (amarillo) */
+}
+
+/* Colores según la calidad del aire */
+.quality-optimal {
+    background-color: #27ae60; /* Verde oscuro */
+}
+
+.quality-good {
+    background-color: #2ecc71; /* Verde */
+}
+
+.quality-regular {
+    background-color: #f1c40f; /* Amarillo */
+}
+
+.quality-poor {
+    background-color: #e67e22; /* Naranja */
+}
+
+.quality-harmful {
+    background-color: #e74c3c; /* Rojo */
+}
+
+/* Estilos para el indicador de calidad */
+.quality-indicator {
+    flex: 1;
+    min-width: 150px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.indicator-label {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.indicator-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background-color: #f8f9fa;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+/* Iconos según calidad */
+.quality-optimal-icon::before {
+    content: "";
+    display: block;
+    width: 50px;
+    height: 50px;
+    background-color: #27ae60;
+    border-radius: 50%;
+}
+
+.quality-good-icon::before {
+    content: "";
+    display: block;
+    width: 50px;
+    height: 50px;
+    background-color: #2ecc71;
+    border-radius: 50%;
+    position: relative;
+}
+
+.quality-regular-icon::before {
+    content: "";
+    display: block;
+    width: 50px;
+    height: 50px;
+    background-color: #f1c40f;
+    border-radius: 50%;
+}
+
+.quality-poor-icon::before {
+    content: "";
+    display: block;
+    width: 50px;
+    height: 50px;
+    background-color: #e67e22;
+    border-radius: 50%;
+}
+
+.quality-harmful-icon::before {
+    content: "";
+    display: block;
+    width: 50px;
+    height: 50px;
+    background-color: #e74c3c;
+    border-radius: 50%;
 }
 
 /* Estilos para gráficos */
@@ -112,12 +216,13 @@ button:hover {
 }
 
 .chart-wrapper {
-    flex: 1;
+    flex: 1 1 calc(50% - 20px);
     min-width: 300px;
     background-color: #f8f9fa;
     padding: 15px;
     border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    margin-bottom: 20px;
 }
 
 canvas {
@@ -125,69 +230,14 @@ canvas {
     height: 250px;
 }
 
-/* Animación del ventilador */
-.fan-display {
-    flex: 1;
-    min-width: 150px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.fan-icon {
-    position: relative;
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    background-color: #e9ecef;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.fan-blade {
-    position: absolute;
-    width: 10px;
-    height: 40px;
-    background-color: #0077b6;
-    border-radius: 5px;
-    transform-origin: center center;
-}
-
-.fan-blade:nth-child(1) {
-    transform: rotate(0deg);
-}
-
-.fan-blade:nth-child(2) {
-    transform: rotate(90deg);
-}
-
-.fan-blade:nth-child(3) {
-    transform: rotate(180deg);
-}
-
-.fan-blade:nth-child(4) {
-    transform: rotate(270deg);
-}
-
-@keyframes spin {
-    0% {
-        transform: rotate(0deg);
-    }
-    100% {
-        transform: rotate(360deg);
-    }
-}
-
-/* La animación se controlará desde JS basado en la velocidad */
-
 /* Responsive */
 @media (max-width: 768px) {
-    .results, .charts-container {
+    .results {
         flex-direction: column;
     }
     .chart-wrapper {
         min-width: 100%;
+        flex: 1 1 100%;
     }
 }
 
