@@ -10,7 +10,7 @@ let o2Chart = null;
 let calidadChart = null;
 
 // Función para crear el gráfico de CO2
-function crearGraficoCO2() {
+function crearGraficoCO2(tipoFuncion) {
     console.log('Creando gráfico de CO2');
     const ctx = document.getElementById('co2Chart');
 
@@ -19,13 +19,31 @@ function crearGraficoCO2() {
         return;
     }
 
+    var datosBajo,datosMedio,datosAlto;
+
+    if (tipoFuncion === 'trapezoidal') {
+        datosBajo = generarDatosTrapezoidal(900, 900, 925, 940, 900, 1046, 100);
+        datosMedio = generarDatosTrapezoidal(925, 950, 1025, 1040, 900, 1046, 100);
+        datosAlto = generarDatosTrapezoidal(1025, 1040, 1046, 1046, 900, 1046, 100);
+    }
+    else if (tipoFuncion === 'gaussiano') {
+        datosBajo = generarDatosGaussiano(900, 17, 900, 1046, 100);
+        datosMedio = generarDatosGaussiano(950, 17, 900, 1046, 100);
+        datosAlto = generarDatosGaussiano(1046, 17, 900, 1046, 100);
+    }
+    else {
+        datosBajo = generarDatosTriangular(900, 900, 950, 900, 1046, 100);
+        datosMedio = generarDatosTriangular(925, 950, 1000, 900, 1046, 100);
+        datosAlto = generarDatosTriangular(975, 1046, 1100, 900, 1046, 100);
+    }
+
     co2Chart = new Chart(ctx, {
         type: 'line',
         data: {
             datasets: [
                 {
                     label: 'Bajo',
-                    data: generarDatosTriangular(900, 900, 950, 900, 1046, 100),
+                    data: datosBajo,
                     borderColor: '#3498db',
                     backgroundColor: 'rgba(52, 152, 219, 0.1)',
                     borderWidth: 2,
@@ -34,7 +52,7 @@ function crearGraficoCO2() {
                 },
                 {
                     label: 'Medio',
-                    data: generarDatosTriangular(925, 975, 1025, 900, 1046, 100),
+                    data: datosMedio,
                     borderColor: '#2ecc71',
                     backgroundColor: 'rgba(46, 204, 113, 0.1)',
                     borderWidth: 2,
@@ -43,7 +61,7 @@ function crearGraficoCO2() {
                 },
                 {
                     label: 'Alto',
-                    data: generarDatosTriangular(1000, 1046, 1046, 900, 1046, 100),
+                    data: datosAlto,
                     borderColor: '#e74c3c',
                     backgroundColor: 'rgba(231, 76, 60, 0.1)',
                     borderWidth: 2,
@@ -92,7 +110,7 @@ function crearGraficoCO2() {
 }
 
 // Función para crear el gráfico de H2
-function crearGraficoH2() {
+function crearGraficoH2(tipoFuncion) {
     console.log('Creando gráfico de H2');
     const ctx = document.getElementById('h2Chart');
 
@@ -101,13 +119,29 @@ function crearGraficoH2() {
         return;
     }
 
+    var datosBajo, datosMedio, datosAlto;
+    if (tipoFuncion === 'trapezoidal') {
+        datosBajo = generarDatosTrapezoidal(500, 500, 510, 515, 500, 540, 100);
+        datosMedio = generarDatosTrapezoidal(510, 515, 525, 530, 500, 540, 100);
+        datosAlto = generarDatosTrapezoidal(525, 530, 540, 540, 500, 540, 100);
+    }
+    else if (tipoFuncion === 'gaussiano') {
+        datosBajo = generarDatosGaussiano(510, 5, 500, 540, 100);
+        datosMedio = generarDatosGaussiano(520, 5, 500, 540, 100);
+        datosAlto = generarDatosGaussiano(540, 5, 500, 540, 100);
+    } else {
+        datosBajo = generarDatosTriangular(480, 510, 520, 500, 540, 100);
+        datosMedio = generarDatosTriangular(510, 520, 530, 500, 540, 100);
+        datosAlto = generarDatosTriangular(525, 540, 560, 500, 540, 100);
+    }
+
     h2Chart = new Chart(ctx, {
         type: 'line',
         data: {
             datasets: [
                 {
                     label: 'Bajo',
-                    data: generarDatosTriangular(500, 500, 520, 500, 540, 100),
+                    data: datosBajo,
                     borderColor: '#3498db',
                     backgroundColor: 'rgba(52, 152, 219, 0.1)',
                     borderWidth: 2,
@@ -116,7 +150,7 @@ function crearGraficoH2() {
                 },
                 {
                     label: 'Medio',
-                    data: generarDatosTriangular(510, 520, 530, 500, 540, 100),
+                    data: datosMedio,
                     borderColor: '#2ecc71',
                     backgroundColor: 'rgba(46, 204, 113, 0.1)',
                     borderWidth: 2,
@@ -125,7 +159,7 @@ function crearGraficoH2() {
                 },
                 {
                     label: 'Alto',
-                    data: generarDatosTriangular(525, 540, 540, 500, 540, 100),
+                    data: datosAlto,
                     borderColor: '#e74c3c',
                     backgroundColor: 'rgba(231, 76, 60, 0.1)',
                     borderWidth: 2,
@@ -174,7 +208,7 @@ function crearGraficoH2() {
 }
 
 // Función para crear el gráfico de CO
-function crearGraficoCO() {
+function crearGraficoCO(tipoFuncion) {
     console.log('Creando gráfico de CO');
     const ctx = document.getElementById('coChart');
 
@@ -183,13 +217,30 @@ function crearGraficoCO() {
         return;
     }
 
+    var datosBajo, datosMedio, datosAlto;
+    if (tipoFuncion === 'trapezoidal') {
+        datosBajo = generarDatosTrapezoidal(490, 490, 495, 500, 490, 520, 100);
+        datosMedio = generarDatosTrapezoidal(495, 500, 505, 510, 490, 520, 100);
+        datosAlto = generarDatosTrapezoidal(505, 510, 520, 520, 490, 520, 100);
+    }
+    else if (tipoFuncion === 'gaussiano') {
+        datosBajo = generarDatosGaussiano(490, 5, 490, 520, 100);
+        datosMedio = generarDatosGaussiano(510, 5, 490, 520, 100);
+        datosAlto = generarDatosGaussiano(520, 5, 490, 520, 100);
+    }
+    else {
+        datosBajo = generarDatosTriangular(470, 490, 500, 490, 520, 100);
+        datosMedio = generarDatosTriangular(500, 510, 520, 490, 520, 100);
+        datosAlto = generarDatosTriangular(510, 520, 540, 490, 520, 100);
+    }
+
     coChart = new Chart(ctx, {
         type: 'line',
         data: {
             datasets: [
                 {
                     label: 'Bajo',
-                    data: generarDatosTriangular(490, 490, 505, 490, 520, 100),
+                    data: datosBajo,
                     borderColor: '#3498db',
                     backgroundColor: 'rgba(52, 152, 219, 0.1)',
                     borderWidth: 2,
@@ -198,7 +249,7 @@ function crearGraficoCO() {
                 },
                 {
                     label: 'Medio',
-                    data: generarDatosTriangular(500, 505, 510, 490, 520, 100),
+                    data: datosMedio,
                     borderColor: '#2ecc71',
                     backgroundColor: 'rgba(46, 204, 113, 0.1)',
                     borderWidth: 2,
@@ -207,7 +258,7 @@ function crearGraficoCO() {
                 },
                 {
                     label: 'Alto',
-                    data: generarDatosTriangular(505, 520, 520, 490, 520, 100),
+                    data: datosAlto,
                     borderColor: '#e74c3c',
                     backgroundColor: 'rgba(231, 76, 60, 0.1)',
                     borderWidth: 2,
@@ -256,7 +307,7 @@ function crearGraficoCO() {
 }
 
 // Función para crear el gráfico de O2
-function crearGraficoO2() {
+function crearGraficoO2(tipoFuncion) {
     console.log('Creando gráfico de O2');
     const ctx = document.getElementById('o2Chart');
 
@@ -265,13 +316,29 @@ function crearGraficoO2() {
         return;
     }
 
+    var datosBajo, datosMedio, datosAlto;
+    if(tipoFuncion === 'trapezoidal'){
+        datosBajo = generarDatosTrapezoidal(3, 4, 4.5, 5, 4, 8, 100);
+        datosMedio = generarDatosTrapezoidal(5, 5.5, 6, 7, 4, 8, 100);
+        datosAlto = generarDatosTrapezoidal(6.5, 7, 8, 9, 4, 8, 100);
+    }
+    else if(tipoFuncion === 'gaussiano'){
+        datosBajo = generarDatosGaussiano(5.5, 0.5, 4, 8, 100);
+        datosMedio = generarDatosGaussiano(6.5, 0.5, 4, 8, 100);
+        datosAlto = generarDatosGaussiano(7.5, 0.5, 4, 8, 100);
+    } else {
+        datosBajo = generarDatosTriangular(3, 4, 5.5, 4, 8, 100);
+        datosMedio = generarDatosTriangular(5, 6, 7, 4, 8, 100);
+        datosAlto = generarDatosTriangular(6.5, 8, 9, 4, 8, 100);
+    }
+
     o2Chart = new Chart(ctx, {
         type: 'line',
         data: {
             datasets: [
                 {
                     label: 'Bajo',
-                    data: generarDatosTriangular(4, 4, 5.5, 4, 8, 100),
+                    data: datosBajo,
                     borderColor: '#3498db',
                     backgroundColor: 'rgba(52, 152, 219, 0.1)',
                     borderWidth: 2,
@@ -280,7 +347,7 @@ function crearGraficoO2() {
                 },
                 {
                     label: 'Medio',
-                    data: generarDatosTriangular(5, 6, 7, 4, 8, 100),
+                    data: datosMedio,
                     borderColor: '#2ecc71',
                     backgroundColor: 'rgba(46, 204, 113, 0.1)',
                     borderWidth: 2,
@@ -289,7 +356,7 @@ function crearGraficoO2() {
                 },
                 {
                     label: 'Alto',
-                    data: generarDatosTriangular(6.5, 8, 8, 4, 8, 100),
+                    data: datosAlto,
                     borderColor: '#e74c3c',
                     backgroundColor: 'rgba(231, 76, 60, 0.1)',
                     borderWidth: 2,
@@ -338,7 +405,7 @@ function crearGraficoO2() {
 }
 
 // Función para crear el gráfico de calidad del aire
-function crearGraficoCalidad() {
+function crearGraficoCalidad(tipoFuncion) {
     console.log('Creando gráfico de calidad del aire');
     const ctx = document.getElementById('calidadChart');
 
@@ -347,13 +414,39 @@ function crearGraficoCalidad() {
         return;
     }
 
+
+    var datosOptimos, datosMedioBueno, datosRegular, datosMedioNocivo, datosNocivo;
+
+    // Generar datos según el tipo de función seleccionado
+    if (tipoFuncion === 'trapezoidal') {
+        datosOptimos = generarDatosTrapezoidal(0, 0, 0, 150, 0, 500, 100);
+        datosMedioBueno = generarDatosTrapezoidal(100, 166.66, 233.32, 300, 0, 500, 100);
+        datosRegular = generarDatosTrapezoidal(200, 266.66, 333.32, 400, 0, 500, 100);
+        datosMedioNocivo = generarDatosTrapezoidal(300, 350, 400, 450, 0, 500, 100);
+        datosNocivo = generarDatosTrapezoidal(400, 450, 500, 500, 0, 500, 100);
+    }
+    else if (tipoFuncion === 'gaussiano') {
+        datosOptimos = generarDatosGaussiano(0, 50, 0, 500, 100);
+        datosMedioBueno = generarDatosGaussiano(200, 50, 0, 500, 100);
+        datosRegular = generarDatosGaussiano(300, 50, 0, 500, 100);
+        datosMedioNocivo = generarDatosGaussiano(400, 50, 0, 500, 100);
+        datosNocivo = generarDatosGaussiano(500, 50, 0, 500, 100);
+    }
+    else{
+        datosOptimos = generarDatosTriangular(0, 0, 150, 0, 500, 100);
+        datosMedioBueno = generarDatosTriangular(100, 200, 300, 0, 500, 100);
+        datosRegular = generarDatosTriangular(200, 300, 400, 0, 500, 100);
+        datosMedioNocivo = generarDatosTriangular(300, 400, 450, 0, 500, 100);
+        datosNocivo = generarDatosTriangular(400, 500, 500, 0, 500, 100);
+    }
+
     calidadChart = new Chart(ctx, {
         type: 'line',
         data: {
             datasets: [
                 {
                     label: 'Óptimo',
-                    data: generarDatosTriangular(0, 0, 150, 0, 500, 100),
+                    data: datosOptimos,
                     borderColor: '#27ae60',  // Verde
                     backgroundColor: 'rgba(39, 174, 96, 0.1)',
                     borderWidth: 2,
@@ -362,7 +455,7 @@ function crearGraficoCalidad() {
                 },
                 {
                     label: 'Medio Bueno',
-                    data: generarDatosTriangular(100, 200, 300, 0, 500, 100),
+                    data: datosMedioBueno,
                     borderColor: '#2ecc71',  // Verde claro
                     backgroundColor: 'rgba(46, 204, 113, 0.1)',
                     borderWidth: 2,
@@ -371,7 +464,7 @@ function crearGraficoCalidad() {
                 },
                 {
                     label: 'Regular',
-                    data: generarDatosTriangular(200, 300, 400, 0, 500, 100),
+                    data: datosRegular,
                     borderColor: '#f1c40f',  // Amarillo
                     backgroundColor: 'rgba(241, 196, 15, 0.1)',
                     borderWidth: 2,
@@ -380,7 +473,7 @@ function crearGraficoCalidad() {
                 },
                 {
                     label: 'Medio Nocivo',
-                    data: generarDatosTriangular(300, 400, 450, 0, 500, 100),
+                    data: datosMedioNocivo,
                     borderColor: '#e67e22',  // Naranja
                     backgroundColor: 'rgba(230, 126, 34, 0.1)',
                     borderWidth: 2,
@@ -389,7 +482,7 @@ function crearGraficoCalidad() {
                 },
                 {
                     label: 'Nocivo',
-                    data: generarDatosTriangular(400, 500, 500, 0, 500, 100),
+                    data: datosNocivo,
                     borderColor: '#e74c3c',  // Rojo
                     backgroundColor: 'rgba(231, 76, 60, 0.1)',
                     borderWidth: 2,
@@ -665,11 +758,11 @@ function actualizarGraficosPorTipoFuncion(tipoFuncion) {
 
 // Función para crear todos los gráficos
 function crearGraficos(tipoFuncion) {
-    crearGraficoCO2();
-    crearGraficoH2();
-    crearGraficoCO();
-    crearGraficoO2();
-    crearGraficoCalidad();
+    crearGraficoCO2(tipoFuncion);
+    crearGraficoH2(tipoFuncion);
+    crearGraficoCO(tipoFuncion);
+    crearGraficoO2(tipoFuncion);
+    crearGraficoCalidad(tipoFuncion);
 }
 
 // Inicializamos los gráficos cuando se cargue la página

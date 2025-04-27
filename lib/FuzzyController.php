@@ -11,7 +11,7 @@ class FuzzyController {
      * @param string $tipoFuncion Tipo de función de membresía a utilizar (triangular, trapezoidal, gaussiano)
      */
     public function __construct($tipoFuncion = 'triangular') {
-        $this->tipoFuncion = $tipoFuncion;
+        $this->tipoFuncion = strtolower($tipoFuncion);
         $this->sistema = new FuzzySystem();
         $this->configurarSistema();
     }
@@ -53,19 +53,19 @@ class FuzzyController {
             $calidad->agregarConjunto(new FuzzySet('nocivo', FuzzySet::TRIANGULAR, [400, 500, 500]))
                    ->agregarConjunto(new FuzzySet('medio_nocivo', FuzzySet::TRIANGULAR, [300, 400, 450]))
                    ->agregarConjunto(new FuzzySet('regular', FuzzySet::TRIANGULAR, [200, 300, 400]))
-                   ->agregarConjunto(new FuzzySet('medio_bueno', FuzzySet::TRIANGULAR, [100, 200, 300]))
+                   ->agregarConjunto(new FuzzySet('regular', FuzzySet::TRIANGULAR, [100, 200, 300]))
                    ->agregarConjunto(new FuzzySet('optimo', FuzzySet::TRIANGULAR, [0, 0, 150]));
         } elseif ($this->tipoFuncion === 'trapezoidal') {
             $calidad->agregarConjunto(new FuzzySet('nocivo', FuzzySet::TRAPEZOIDAL, [400, 450, 500, 500]))
                    ->agregarConjunto(new FuzzySet('medio_nocivo', FuzzySet::TRAPEZOIDAL, [300, 350, 400, 450]))
                    ->agregarConjunto(new FuzzySet('regular', FuzzySet::TRAPEZOIDAL, [200, 250, 300, 350]))
-                   ->agregarConjunto(new FuzzySet('medio_bueno', FuzzySet::TRAPEZOIDAL, [100, 150, 200, 250]))
+                   ->agregarConjunto(new FuzzySet('regular', FuzzySet::TRAPEZOIDAL, [100, 150, 200, 250]))
                    ->agregarConjunto(new FuzzySet('optimo', FuzzySet::TRAPEZOIDAL, [0, 0, 100, 150]));
         } elseif ($this->tipoFuncion === 'gaussiano') {
             $calidad->agregarConjunto(new FuzzySet('nocivo', FuzzySet::GAUSSIANO, [450, 40]))
                    ->agregarConjunto(new FuzzySet('medio_nocivo', FuzzySet::GAUSSIANO, [375, 40]))
                    ->agregarConjunto(new FuzzySet('regular', FuzzySet::GAUSSIANO, [300, 40]))
-                   ->agregarConjunto(new FuzzySet('medio_bueno', FuzzySet::GAUSSIANO, [175, 40]))
+                   ->agregarConjunto(new FuzzySet('regular', FuzzySet::GAUSSIANO, [175, 40]))
                    ->agregarConjunto(new FuzzySet('optimo', FuzzySet::GAUSSIANO, [75, 40]));
         }
         
@@ -78,62 +78,164 @@ class FuzzyController {
         
         // 4. Configurar reglas difusas
         
-        // Regla 1: Si CO2 es alto o CO es alto, entonces ICA es nocivo.
+        // Regla 1. CO2 alto, H2 alto, CO alto, O2 bajo -> Calidad del aire nociva
         $this->sistema->agregarRegla(new FuzzyRule(
-            ['co2' => ['alto' => ''], 'co' => ['alto' => 'OR']],
+            ['co2' => ['alto' => ''], 'h2' => ['alto' => ''],  'co' => ['alto' => ''], 'o2' => ['bajo' => '']],
             ['calidad' => 'nocivo'],
             1.0
         ));
-        
-        // Regla 2: Si CO2 es medio y H2 es alto, entonces ICA es medio nocivo.
+
+        # Regla 2. CO2 alto, H2 alto, CO medio, O2 bajo -> Calidad del aire medio nociva
         $this->sistema->agregarRegla(new FuzzyRule(
-            ['co2' => ['medio' => ''], 'h2' => ['alto' => '']],
+            ['co2' => ['alto' => ''], 'h2' => ['alto' => ''],  'co' => ['medio' => ''], 'o2' => ['bajo' => '']],
             ['calidad' => 'medio_nocivo'],
             1.0
         ));
-        
-        // Regla 3: Si CO2 es bajo y CO es bajo, entonces ICA es regular.
+
+        #Regla 3. CO2 medio, H2 medio, CO medio, O2 bajo -> Calidad del aire medio nociva
         $this->sistema->agregarRegla(new FuzzyRule(
-            ['co2' => ['bajo' => ''], 'co' => ['bajo' => '']],
+            ['co2' => ['medio' => ''], 'h2' => ['medio' => ''],  'co' => ['medio' => ''], 'o2' => ['bajo' => '']],
+            ['calidad' => 'medio_nocivo'],
+            1.0
+        ));
+
+        #Regla 4. CO2 bajo, H2 medio, CO medio, O2 bajo -> Calidad del aire regular
+        $this->sistema->agregarRegla(new FuzzyRule(
+            ['co2' => ['bajo' => ''], 'h2' => ['medio' => ''],  'co' => ['medio' => ''], 'o2' => ['bajo' => '']],
             ['calidad' => 'regular'],
             1.0
         ));
-        
-        // Regla 4: Si CO2 es bajo y O2 es alto, entonces ICA es medio bueno.
+        #Regla 5. CO2 bajo, H2 bajo, CO medio, O2 bajo -> Calidad del aire regular
         $this->sistema->agregarRegla(new FuzzyRule(
-            ['co2' => ['bajo' => ''], 'o2' => ['alto' => '']],
-            ['calidad' => 'medio_bueno'],
+            ['co2' => ['bajo' => ''], 'h2' => ['bajo' => ''],  'co' => ['medio' => ''], 'o2' => ['bajo' => '']],
+            ['calidad' => 'regular'],
             1.0
         ));
-        
-        // Regla 5: Si CO2 es bajo y CO es bajo y O2 es alto, entonces ICA es óptimo.
+
+        #Regla 6. CO2 alto, H2 alto, CO alto, O2 medio -> Calidad del aire nociva
         $this->sistema->agregarRegla(new FuzzyRule(
-            ['co2' => ['bajo' => ''], 'co' => ['bajo' => ''], 'o2' => ['alto' => '']],
+            ['co2' => ['alto' => ''], 'h2' => ['alto' => ''],  'co' => ['alto' => ''], 'o2' => ['medio' => '']],
+            ['calidad' => 'nocivo'],
+            1.0
+        ));
+
+        #Regla 7. CO2 alto, H2 alto, CO alto, O2 alto -> Calidad del aire medio nociva
+        $this->sistema->agregarRegla(new FuzzyRule(
+            ['co2' => ['alto' => ''], 'h2' => ['alto' => ''],  'co' => ['alto' => ''], 'o2' => ['alto' => '']],
+            ['calidad' => 'medio_nocivo'],
+            1.0
+        ));
+
+        #Regla 8. CO2 bajo, H2 bajo, CO bajo, O2 alto -> Calidad del aire optima
+        $this->sistema->agregarRegla(new FuzzyRule(
+            ['co2' => ['bajo' => ''], 'h2' => ['bajo' => ''], 'co' => ['bajo' => ''], 'o2' => ['alto' => '']],
             ['calidad' => 'optimo'],
             1.0
         ));
-        
-        // Reglas adicionales para completar el sistema
-        
-        // Regla 6: Si H2 es alto y CO es alto, entonces ICA es nocivo.
+
+        #Regla 9. CO2 bajo, H2 bajo, CO bajo, O2 medio -> Calidad del aire regular
         $this->sistema->agregarRegla(new FuzzyRule(
-            ['h2' => ['alto' => ''], 'co' => ['alto' => '']],
-            ['calidad' => 'nocivo'],
-            0.9
-        ));
-        
-        // Regla 7: Si O2 es bajo, entonces ICA es medio nocivo.
-        $this->sistema->agregarRegla(new FuzzyRule(
-            ['o2' => ['bajo' => '']],
-            ['calidad' => 'medio_nocivo'],
-            0.8
-        ));
-        
-        // Regla 8: Si CO2 es medio y O2 es medio, entonces ICA es regular.
-        $this->sistema->agregarRegla(new FuzzyRule(
-            ['co2' => ['medio' => ''], 'o2' => ['medio' => '']],
+            ['co2' => ['bajo' => ''], 'h2' => ['bajo' => ''], 'co' => ['bajo' => ''], 'o2' => ['medio' => '']],
             ['calidad' => 'regular'],
-            0.7
+            1.0
+        ));
+
+        #Regla 10. CO2 bajo, H2 bajo, CO medio, O2 medio -> Calidad del aire regular
+        $this->sistema->agregarRegla(new FuzzyRule(
+            ['co2' => ['bajo' => ''], 'h2' => ['bajo' => ''], 'co' => ['medio' => ''], 'o2' => ['medio' => '']],
+            ['calidad' => 'regular'],
+            1.0
+        ));
+
+        #Regla 11. CO2 bajo, H2 medio, CO bajo, O2 medio -> Calidad del aire regular
+        $this->sistema->agregarRegla(new FuzzyRule(
+            ['co2' => ['bajo' => ''], 'h2' => ['medio' => ''], 'co' => ['bajo' => ''], 'o2' => ['medio' => '']],
+            ['calidad' => 'regular'],
+            1.0
+        ));
+
+        #Regla 12. CO2 bajo, H2 medio, CO alto, O2 bajo -> Calidad del aire regular
+        $this->sistema->agregarRegla(new FuzzyRule(
+            ['co2' => ['bajo' => ''], 'h2' => ['medio' => ''], 'co' => ['alto' => ''], 'o2' => ['bajo' => '']],
+            ['calidad' => 'regular'],
+            1.0
+        ));
+
+        #Regla 13. CO2 medio, H2 bajo, CO bajo, O2 medio -> Calidad del aire regular
+        $this->sistema->agregarRegla(new FuzzyRule(
+            ['co2' => ['medio' => ''], 'h2' => ['bajo' => ''], 'co' => ['bajo' => ''], 'o2' => ['medio' => '']],
+            ['calidad' => 'regular'],
+            1.0
+        ));
+
+        #Regla 14. CO2 medio, H2 bajo, CO medio, O2 bajo -> Calidad del aire regular
+        $this->sistema->agregarRegla(new FuzzyRule(
+            ['co2' => ['medio' => ''], 'h2' => ['bajo' => ''], 'co' => ['medio' => ''], 'o2' => ['bajo' => '']],
+            ['calidad' => 'regular'],
+            1.0
+        ));
+
+        #Regla 15. CO2 medio, H2 medio, CO bajo, O2 bajo -> Calidad del aire regular
+        $this->sistema->agregarRegla(new FuzzyRule(
+            ['co2' => ['medio' => ''], 'h2' => ['medio' => ''], 'co' => ['bajo' => ''], 'o2' => ['bajo' => '']],
+            ['calidad' => 'regular'],
+            1.0
+        ));
+
+        #Regla 16. CO2 medio, H2 medio, CO medio, O2 medio -> Calidad del aire medio nocivo
+        $this->sistema->agregarRegla(new FuzzyRule(
+            ['co2' => ['medio' => ''], 'h2' => ['medio' => ''], 'co' => ['medio' => ''], 'o2' => ['medio' => '']],
+            ['calidad' => 'medio_nocivo'],
+            1.0
+        ));
+
+        #Regla 17. CO2 medio, H2 alto, CO alto, O2 bajo -> Calidad del aire nociva
+        $this->sistema->agregarRegla(new FuzzyRule(
+            ['co2' => ['medio' => ''], 'h2' => ['alto' => ''], 'co' => ['alto' => ''], 'o2' => ['bajo' => '']],
+            ['calidad' => 'nocivo'],
+            1.0
+        ));
+
+        #Regla 18. CO2 alto, H2 bajo, CO bajo, O2 bajo -> Calidad del aire medio nociva
+        $this->sistema->agregarRegla(new FuzzyRule(
+            ['co2' => ['alto' => ''], 'h2' => ['bajo' => ''], 'co' => ['bajo' => ''], 'o2' => ['bajo' => '']],
+            ['calidad' => 'medio_nocivo'],
+            1.0
+        ));
+
+        #Regla 19. CO2 alto, H2 bajo, CO alto, O2 bajo -> Calidad del aire medio nociva
+        $this->sistema->agregarRegla(new FuzzyRule(
+            ['co2' => ['alto' => ''], 'h2' => ['bajo' => ''], 'co' => ['alto' => ''], 'o2' => ['bajo' => '']],
+            ['calidad' => 'nocivo'],
+            1.0
+        ));
+
+        #Regla 20. CO2 alto, H2 medio, CO alto, O2 bajo -> Calidad del aire medio nociva
+        $this->sistema->agregarRegla(new FuzzyRule(
+            ['co2' => ['alto' => ''], 'h2' => ['medio' => ''], 'co' => ['alto' => ''], 'o2' => ['bajo' => '']],
+            ['calidad' => 'nocivo'],
+            1.0
+        ));
+
+        #Regla 21. CO2 alto, H2 alto, CO bajo, O2 bajo -> Calidad del aire medio nociva
+        $this->sistema->agregarRegla(new FuzzyRule(
+            ['co2' => ['alto' => ''], 'h2' => ['alto' => ''], 'co' => ['bajo' => ''], 'o2' => ['bajo' => '']],
+            ['calidad' => 'nocivo'],
+            1.0
+        ));
+
+        #Regla 22. CO2 alto, H2 alto, CO alto, O2 medio -> Calidad del aire nociva
+        $this->sistema->agregarRegla(new FuzzyRule(
+            ['co2' => ['alto' => ''], 'h2' => ['alto' => ''], 'co' => ['alto' => ''], 'o2' => ['medio' => '']],
+            ['calidad' => 'nocivo'],
+            1.0
+        ));
+
+        #Regla 23. CO2 medio, H2 alto, CO alto, O2 medio -> Calidad del aire medio nociva
+        $this->sistema->agregarRegla(new FuzzyRule(
+            ['co2' => ['medio' => ''], 'h2' => ['alto' => ''], 'co' => ['alto' => ''], 'o2' => ['medio' => '']],
+            ['calidad' => 'medio_nocivo'],
+            1.0
         ));
     }
     
@@ -143,23 +245,23 @@ class FuzzyController {
     private function configurarConjuntosTriangulares($co2, $h2, $co, $o2) {
         // CO2 (900-1046 PPM)
         $co2->agregarConjunto(new FuzzySet('bajo', FuzzySet::TRIANGULAR, [900, 900, 950]))
-            ->agregarConjunto(new FuzzySet('medio', FuzzySet::TRIANGULAR, [925, 975, 1025]))
-            ->agregarConjunto(new FuzzySet('alto', FuzzySet::TRIANGULAR, [1000, 1046, 1046]));
+            ->agregarConjunto(new FuzzySet('medio', FuzzySet::TRIANGULAR, [925, 950, 1000]))
+            ->agregarConjunto(new FuzzySet('alto', FuzzySet::TRIANGULAR, [975, 1046, 1100]));
         
         // H2 (500-540 PPM)
-        $h2->agregarConjunto(new FuzzySet('bajo', FuzzySet::TRIANGULAR, [500, 500, 520]))
+        $h2->agregarConjunto(new FuzzySet('bajo', FuzzySet::TRIANGULAR, [480, 510, 520]))
            ->agregarConjunto(new FuzzySet('medio', FuzzySet::TRIANGULAR, [510, 520, 530]))
-           ->agregarConjunto(new FuzzySet('alto', FuzzySet::TRIANGULAR, [525, 540, 540]));
+           ->agregarConjunto(new FuzzySet('alto', FuzzySet::TRIANGULAR, [525, 540, 560]));
         
         // CO (490-520 PPM)
-        $co->agregarConjunto(new FuzzySet('bajo', FuzzySet::TRIANGULAR, [490, 490, 505]))
-           ->agregarConjunto(new FuzzySet('medio', FuzzySet::TRIANGULAR, [500, 505, 510]))
-           ->agregarConjunto(new FuzzySet('alto', FuzzySet::TRIANGULAR, [505, 520, 520]));
+        $co->agregarConjunto(new FuzzySet('bajo', FuzzySet::TRIANGULAR, [470, 490, 500]))
+           ->agregarConjunto(new FuzzySet('medio', FuzzySet::TRIANGULAR, [500, 510, 520]))
+           ->agregarConjunto(new FuzzySet('alto', FuzzySet::TRIANGULAR, [510, 520, 540]));
         
         // O2 (4-8 PPM)
-        $o2->agregarConjunto(new FuzzySet('bajo', FuzzySet::TRIANGULAR, [4, 4, 5.5]))
+        $o2->agregarConjunto(new FuzzySet('bajo', FuzzySet::TRIANGULAR, [3, 4, 5.5]))
            ->agregarConjunto(new FuzzySet('medio', FuzzySet::TRIANGULAR, [5, 6, 7]))
-           ->agregarConjunto(new FuzzySet('alto', FuzzySet::TRIANGULAR, [6.5, 8, 8]));
+           ->agregarConjunto(new FuzzySet('alto', FuzzySet::TRIANGULAR, [6.5, 8, 9]));
     }
     
     /**
@@ -167,24 +269,24 @@ class FuzzyController {
      */
     private function configurarConjuntosTrapezioidales($co2, $h2, $co, $o2) {
         // CO2 (900-1046 PPM)
-        $co2->agregarConjunto(new FuzzySet('bajo', FuzzySet::TRAPEZOIDAL, [900, 900, 925, 950]))
-            ->agregarConjunto(new FuzzySet('medio', FuzzySet::TRAPEZOIDAL, [925, 950, 1000, 1025]))
-            ->agregarConjunto(new FuzzySet('alto', FuzzySet::TRAPEZOIDAL, [1000, 1025, 1046, 1046]));
+        $co2->agregarConjunto(new FuzzySet('bajo', FuzzySet::TRAPEZOIDAL, [900, 900, 925, 940]))
+            ->agregarConjunto(new FuzzySet('medio', FuzzySet::TRAPEZOIDAL, [925, 950, 1025, 1040]))
+            ->agregarConjunto(new FuzzySet('alto', FuzzySet::TRAPEZOIDAL, [1025, 1040, 1046, 1066]));
         
         // H2 (500-540 PPM)
-        $h2->agregarConjunto(new FuzzySet('bajo', FuzzySet::TRAPEZOIDAL, [500, 500, 510, 520]))
+        $h2->agregarConjunto(new FuzzySet('bajo', FuzzySet::TRAPEZOIDAL, [500, 500, 510, 515]))
            ->agregarConjunto(new FuzzySet('medio', FuzzySet::TRAPEZOIDAL, [510, 515, 525, 530]))
            ->agregarConjunto(new FuzzySet('alto', FuzzySet::TRAPEZOIDAL, [525, 530, 540, 540]));
         
         // CO (490-520 PPM)
-        $co->agregarConjunto(new FuzzySet('bajo', FuzzySet::TRAPEZOIDAL, [490, 490, 495, 505]))
+        $co->agregarConjunto(new FuzzySet('bajo', FuzzySet::TRAPEZOIDAL, [490, 490, 495, 500]))
            ->agregarConjunto(new FuzzySet('medio', FuzzySet::TRAPEZOIDAL, [495, 500, 505, 510]))
            ->agregarConjunto(new FuzzySet('alto', FuzzySet::TRAPEZOIDAL, [505, 510, 520, 520]));
         
         // O2 (4-8 PPM)
-        $o2->agregarConjunto(new FuzzySet('bajo', FuzzySet::TRAPEZOIDAL, [4, 4, 4.5, 5.5]))
-           ->agregarConjunto(new FuzzySet('medio', FuzzySet::TRAPEZOIDAL, [5, 5.5, 6.5, 7]))
-           ->agregarConjunto(new FuzzySet('alto', FuzzySet::TRAPEZOIDAL, [6.5, 7, 8, 8]));
+        $o2->agregarConjunto(new FuzzySet('bajo', FuzzySet::TRAPEZOIDAL, [3.0, 4.0, 4.5, 5.0]))
+           ->agregarConjunto(new FuzzySet('medio', FuzzySet::TRAPEZOIDAL, [4.5, 5.5, 6.0, 7.0]))
+           ->agregarConjunto(new FuzzySet('alto', FuzzySet::TRAPEZOIDAL, [6.5, 7.0, 8.0, 9.0]));
     }
     
     /**
@@ -294,9 +396,9 @@ class FuzzyController {
         
         // Ponderación de cada gas (puede ajustarse según la importancia relativa)
         $co2Peso = 0.35; // CO2 es muy importante
-        $h2Peso = 0.20;
+        $h2Peso = 0.15;
         $coPeso = 0.25;
-        $o2Peso = 0.20;
+        $o2Peso = 0.35;
         
         // Calcular un índice ponderado (0-1)
         $indicePonderado = ($co2Norm * $co2Peso) + 

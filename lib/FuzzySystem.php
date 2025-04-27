@@ -108,15 +108,29 @@ class FuzzySystem {
                 continue;
             }
             
+            // Validar que min y max sean distintos
+            $min = $variable->getMinValue();
+            $max = $variable->getMaxValue();
+            
+            if ($max == $min) {
+                // Evitar bucle infinito o paso cero
+                $resultados[$nombreVariable] = $min;
+                continue;
+            }
+    
             // Método del centroide (Center of Gravity)
             $numerador = 0;
             $denominador = 0;
             
             // Número de puntos para la discretización
-            $numPuntos = 100;
-            $min = $variable->getMinValue();
-            $max = $variable->getMaxValue();
+            $numPuntos = 700;
             $paso = ($max - $min) / $numPuntos;
+    
+            if ($paso <= 0) {
+                // Paso inválido, evitar
+                $resultados[$nombreVariable] = ($min + $max) / 2;
+                continue;
+            }
             
             for ($i = 0; $i <= $numPuntos; $i++) {
                 $x = $min + ($i * $paso);
@@ -148,6 +162,7 @@ class FuzzySystem {
         
         return $resultados;
     }
+    
     
     /**
      * Obtiene las variables de entrada
