@@ -132,9 +132,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
             </section>
             
-            <section class="doc-link">
-                <p><a href="ayuda.php">Ver documentación del sistema →</a></p>
-            </section>
         </main>
 
         <footer>
